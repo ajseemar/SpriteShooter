@@ -6,7 +6,11 @@ var KEYS = {
     LEFT: "LEFT",
     UP: "UP",
     RIGHT: "RIGHT",
-    DOWN: "DOWN"
+    DOWN: "DOWN",
+    W: "W",
+    A: "A",
+    S: "S",
+    D: "D",
 };
 
 const clamp = (num, min, max) => {
@@ -167,6 +171,18 @@ class InputManager {
             case 32:
                 key = KEYS.SPACE;
                 break;
+            case 65:
+                key = KEYS.LEFT;
+                break;
+            case 87:
+                key = KEYS.UP;
+                break;
+            case 68:
+                key = KEYS.RIGHT;
+                break;
+            case 83:
+                key = KEYS.DOWN;
+                break;
             case 37:
                 key = KEYS.LEFT;
                 break;
@@ -198,12 +214,14 @@ class Player {
         this.size = size / 3; //c.width / (size * 2);
         // this.screenX = 0;
         // this.screenY = 0;
-        this.sprite = rm.get('assets/player_standing.png');
-        console.log(this.sprite);
-        this.width = this.sprite.width;
-        this.height = this.sprite.height;
-        console.log(this.width, this.height);
-
+        // this.sprite = rm.get('assets/player_standing.png');
+        // console.log(this.sprite);
+        // this.width = this.sprite.width;
+        // this.height = this.sprite.height;
+        // console.log(this.width, this.height);
+        this.angle = 0;
+        window.addEventListener('mousemove', this.handleRotation.bind(this));
+        rm.onReady(this.init.bind(this));
         this.position = {
             x: this.size,
             y: this.size
@@ -223,11 +241,36 @@ class Player {
         this.cellCount = cellCount;
     }
 
+    handleRotation(e) {
+        // this.updatePivot();
+
+        // this.angle = Math.atan2(e.clientY - this.regY, e.clientX - this.regX);
+        this.angle = Math.atan2(e.clientY - this.position.y - this.height / 2, e.clientX - this.position.x - this.width / 2);
+        // console.log(e.clientX, e.clientY);
+        // console.log(this.angle);
+
+        // this.angle = this.angle * (180 / Math.PI);
+
+        // if (this.angle < 0) {
+
+        //     this.angle = 360 - (-this.angle);
+
+        // }
+    }
+
     init() {
-        this.sprite = rm.get('assets/player_standing.png');
+        window.sprite = this.sprite = rm.get('assets/player_standing.png');
         // console.log(this.sprite);
         this.width = this.sprite.width;
         this.height = this.sprite.height;
+        // console.log(this.width, this.height);
+
+        // this.updatePivot();
+    }
+
+    updatePivot() {
+        this.regX = this.position.x + this.width / 2;
+        this.regY = this.position.y + this.height / 2;
     }
 
     handleInput() {
@@ -260,20 +303,30 @@ class Player {
         // const maxY = this.size * 100 * 3 - (c.height - 10 * (c.height / 100));
         this.position.x += this.velocity.x * dt;
         this.position.y += this.velocity.y * dt;
-        this.position.x = Math.max(0, Math.min(this.position.x, (this.cellCount - 1) * this.cellSize));
-        this.position.y = Math.max(0, Math.min(this.position.y, (this.cellCount - 1) * this.cellSize));
+        // this.position.x = Math.max(0, Math.min(this.position.x, (this.cellCount - 1) * this.cellSize));
+        // this.position.y = Math.max(0, Math.min(this.position.y, (this.cellCount - 1) * this.cellSize));
         // this.screenX = this.position.x;
         // this.screenY = this.position.y;
         // console.log(this.screenX, this.screenY);postition.
+        // this.sprite.style.transform = `rotate(${this.angle}deg)`;
     }
 
     render(offsetX, offsetY) {
-        // cc.fillStyle = "#0ff";
-        // cc.beginPath();
-        // cc.arc(this.position.x, this.position.y, this.size, 0, Math.PI * 2)
-        // cc.closePath();
-        // cc.fill();
-        cc.drawImage(this.sprite, this.position.x, this.position.y, 50, 50, 0, 0, 50, 50);
+
+        // cc.setTransform(1, 0, 0, 1, this.position.x, this.position.y); // sets scale and origin
+        // cc.rotate(this.angle);
+        // const cx = this.position.x + this.sprite.width / 2;
+        // const cy = this.position.y + this.sprite.height / 2;
+        // cc.drawImage(this.sprite, -cx, -cy);
+        cc.save();
+        cc.translate(this.position.x, this.position.y)
+        cc.rotate(this.angle);
+        cc.drawImage(this.sprite, -this.width / 2, -this.height / 2);
+        // cc.drawImage(this.sprite, this.position.x, this.position.y);
+        cc.restore();
+
+
+        // cc.rotate(-this.angle);
     }
 }
 
